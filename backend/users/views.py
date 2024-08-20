@@ -1,8 +1,8 @@
 from django.shortcuts import render
+from django.http import Http404
 
-from rest_framework import generics, permissions, status
+from rest_framework import generics, status
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
 from .serializers import UserSerializer
@@ -28,3 +28,13 @@ class UserListAPIView(generics.ListAPIView):
     def get_queryset(self):
         queryset = User.objects.all()
         return queryset
+    
+class UserUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = UserSerializer
+
+    def get_object(self):
+        id = self.kwargs.get('id')
+        user = User.objects.filter(id=id).first()
+        if user is None:
+            raise Http404("User not found.")
+        return user
